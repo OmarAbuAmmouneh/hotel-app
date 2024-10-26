@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReservationService } from '../reservation/reservation.service';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Reservation } from '../models/reservation';
 @Component({
   selector: 'app-reservation-form',
   templateUrl: './reservation-form.component.html',
@@ -29,19 +30,30 @@ export class ReservationFormComponent implements OnInit {
 
     const id = this.activateRoute.snapshot.paramMap.get('id');
     if (id) {
-      const reservation = this.reservationService.getReservation(id);
-      if (reservation) {
-        this.reservationForm.patchValue(reservation);
-      }
+      this.reservationService
+        .getReservation(id)
+        .subscribe((reservation: Reservation) => {
+          if (reservation) {
+            this.reservationForm.patchValue(reservation);
+          }
+        });
     }
   }
   onSubmit() {
     if (this.reservationForm.valid) {
       const id = this.activateRoute.snapshot.paramMap.get('id');
       if (id) {
-        this.reservationService.updateReservation(id, this.reservationForm.value);
+        this.reservationService
+          .updateReservation(id, this.reservationForm.value)
+          .subscribe(() => {
+            alert('The reservation was updated successfullly');
+          });
       } else {
-        this.reservationService.addReservation(this.reservationForm.value);
+        this.reservationService
+          .addReservation(this.reservationForm.value)
+          .subscribe(() => {
+            alert('The reservation was added successfully');
+          });
       }
       this.router.navigate(['/list']);
     }
